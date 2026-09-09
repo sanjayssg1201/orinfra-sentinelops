@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from orinfra_sentinelops.application.services.incident_service import IncidentService
 from orinfra_sentinelops.domain.enums.incident import IncidentStatus
@@ -45,3 +45,23 @@ async def create_incident(
     created = await service.create_incident(incident)
 
     return IncidentResponse.model_validate(created)
+
+
+@router.get(
+    "/{incident_id}",
+    response_model=IncidentResponse,
+)
+async def get_incident(
+    incident_id: str,
+    service: IncidentService = Depends(get_incident_service),
+) -> IncidentResponse:
+    """Return an incident by ID."""
+    try:
+        incident = await service.get_incident(incident_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Incident '{incident_id}' not found.",
+        ) from exc
+
+    return IncidentResponse.model_validate(incident)

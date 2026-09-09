@@ -40,3 +40,11 @@ class IncidentResponse(BaseModel):
     service: str
     trace_ids: list[str]
     metadata: dict[str, object]
+
+
+class IncidentResolveRequest(BaseModel):
+    """Request payload for resolving an incident."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    resolved_at: datetime

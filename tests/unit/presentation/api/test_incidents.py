@@ -81,3 +81,85 @@ def test_get_unknown_incident_returns_not_found() -> None:
     assert response.json() == {
         "detail": "Incident 'INC-does-not-exist' not found.",
     }
+
+
+def test_start_investigation_returns_investigating_incident() -> None:
+    response = client.post(
+        "/incidents",
+        json={
+            "title": "Investigation test",
+            "description": "Testing investigation lifecycle.",
+            "severity": "high",
+            "affected_components": ["test-service"],
+            "environment": "test",
+            "service": "test-service",
+        },
+    )
+
+    assert response.status_code == 201
+    incident_id = response.json()["incident_id"]
+
+    response = client.post(f"/incidents/{incident_id}/investigate")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "investigating"
+
+
+def test_resolve_incident_returns_resolved_incident() -> None:
+    response = client.post(
+        "/incidents",
+        json={
+            "title": "Resolution test",
+            "description": "Testing incident resolution.",
+            "severity": "high",
+            "affected_components": ["test-service"],
+            "environment": "test",
+            "service": "test-service",
+        },
+    )
+
+    assert response.status_code == 201
+    incident_id = response.json()["incident_id"]
+
+    response = client.post(f"/incidents/{incident_id}/investigate")
+    assert response.status_code == 200
+
+    response = client.post(
+        f"/incidents/{incident_id}/resolve",
+        json={"resolved_at": "2026-09-09T11:00:00Z"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "resolved"
+    assert response.json()["resolved_at"] == "2026-09-09T11:00:00Z"
+
+
+def test_close_incident_returns_closed_incident() -> None:
+    response = client.post(
+        "/incidents",
+        json={
+            "title": "Closure test",
+            "description": "Testing incident closure.",
+            "severity": "medium",
+            "affected_components": ["test-service"],
+            "environment": "test",
+            "service": "test-service",
+        },
+    )
+
+    assert response.status_code == 201
+    incident_id = response.json()["incident_id"]
+
+    response = client.post(f"/incidents/{incident_id}/investigate")
+    assert response.status_code == 200
+
+    response = client.post(
+        f"/incidents/{incident_id}/resolve",
+        json={"resolved_at": "2026-09-09T11:00:00Z"},
+    )
+    assert response.status_code == 200
+
+    response = client.post(f"/incidents/{incident_id}/close")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "closed"

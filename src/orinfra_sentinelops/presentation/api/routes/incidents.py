@@ -11,6 +11,7 @@ from orinfra_sentinelops.presentation.api.dependencies.incident import (
 )
 from orinfra_sentinelops.presentation.api.schemas.incident import (
     IncidentCreateRequest,
+    IncidentResolveRequest,
     IncidentResponse,
 )
 
@@ -62,6 +63,70 @@ async def get_incident(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Incident '{incident_id}' not found.",
+        ) from exc
+
+    return IncidentResponse.model_validate(incident)
+
+
+@router.post(
+    "/{incident_id}/investigate",
+    response_model=IncidentResponse,
+)
+async def start_investigation(
+    incident_id: str,
+    service: IncidentService = Depends(get_incident_service),
+) -> IncidentResponse:
+    """Start investigation for an incident."""
+    try:
+        incident = await service.start_investigation(incident_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+    return IncidentResponse.model_validate(incident)
+
+
+@router.post(
+    "/{incident_id}/resolve",
+    response_model=IncidentResponse,
+)
+async def resolve_incident(
+    incident_id: str,
+    request: IncidentResolveRequest,
+    service: IncidentService = Depends(get_incident_service),
+) -> IncidentResponse:
+    """Resolve an incident."""
+    try:
+        incident = await service.resolve_incident(
+            incident_id,
+            request.resolved_at,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+    return IncidentResponse.model_validate(incident)
+
+
+@router.post(
+    "/{incident_id}/close",
+    response_model=IncidentResponse,
+)
+async def close_incident(
+    incident_id: str,
+    service: IncidentService = Depends(get_incident_service),
+) -> IncidentResponse:
+    """Close a resolved incident."""
+    try:
+        incident = await service.close_incident(incident_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
         ) from exc
 
     return IncidentResponse.model_validate(incident)

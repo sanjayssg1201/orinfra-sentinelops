@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from fastapi.testclient import TestClient
 
@@ -8,7 +8,7 @@ client = TestClient(app)
 
 
 def test_incident_complete_lifecycle() -> None:
-    detected_at = datetime.now(timezone.utc)
+    detected_at = datetime.now(UTC)
     resolved_at = detected_at + timedelta(minutes=5)
 
     create_response = client.post(

@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 
+from orinfra_sentinelops.presentation.api.routes.incidents import router as incidents_router
+
 
 def create_app() -> FastAPI:
     """Create and configure the SentinelOps FastAPI application."""
@@ -16,6 +18,8 @@ def create_app() -> FastAPI:
     async def health() -> dict[str, str]:
         """Return the application health status."""
         return {"status": "ok"}
+
+    app.include_router(incidents_router)
 
     return app
 

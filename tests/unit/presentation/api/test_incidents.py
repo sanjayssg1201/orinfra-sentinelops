@@ -33,9 +33,7 @@ def test_create_incident_returns_created_incident() -> None:
 
     assert body["incident_id"].startswith("INC-")
     assert body["title"] == "Feature pipeline regression"
-    assert body["description"] == (
-        "Fraud model performance degraded after a pipeline change."
-    )
+    assert body["description"] == ("Fraud model performance degraded after a pipeline change.")
     assert body["severity"] == "high"
     assert body["status"] == "detected"
     assert body["affected_components"] == [
@@ -138,9 +136,7 @@ def test_resolve_incident_returns_resolved_incident() -> None:
     incident = response.json()
     incident_id = incident["incident_id"]
 
-    detected_at = datetime.fromisoformat(
-        incident["detected_at"].replace("Z", "+00:00")
-    )
+    detected_at = datetime.fromisoformat(incident["detected_at"].replace("Z", "+00:00"))
     resolved_at = detected_at + timedelta(minutes=5)
 
     response = client.post(
@@ -164,9 +160,7 @@ def test_resolve_incident_returns_resolved_incident() -> None:
     assert body["status"] == "resolved"
     assert body["resolved_at"] is not None
 
-    actual_resolved_at = datetime.fromisoformat(
-        body["resolved_at"].replace("Z", "+00:00")
-    )
+    actual_resolved_at = datetime.fromisoformat(body["resolved_at"].replace("Z", "+00:00"))
 
     assert actual_resolved_at == resolved_at
 
@@ -189,9 +183,7 @@ def test_close_incident_returns_closed_incident() -> None:
     incident = response.json()
     incident_id = incident["incident_id"]
 
-    detected_at = datetime.fromisoformat(
-        incident["detected_at"].replace("Z", "+00:00")
-    )
+    detected_at = datetime.fromisoformat(incident["detected_at"].replace("Z", "+00:00"))
     resolved_at = detected_at + timedelta(minutes=5)
 
     response = client.post(

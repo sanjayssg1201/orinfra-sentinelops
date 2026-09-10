@@ -3,6 +3,9 @@ from fastapi import FastAPI
 from orinfra_sentinelops.presentation.api.routes.evidence import (
     router as evidence_router,
 )
+from orinfra_sentinelops.presentation.api.routes.incident_evidence import (
+    router as incident_evidence_router,
+)
 from orinfra_sentinelops.presentation.api.routes.incidents import router as incidents_router
 
 
@@ -24,6 +27,7 @@ def create_app() -> FastAPI:
 
     app.include_router(incidents_router)
     app.include_router(evidence_router)
+    app.include_router(incident_evidence_router)
     return app
 
 
